@@ -9,22 +9,32 @@ namespace ExpenseTracker.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
-        public AuthController(AuthService authService) => _authService = authService;
+
+        public AuthController(AuthService authService)
+        {
+            _authService = authService;
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
-            var user = await _authService.Register(model);
-            if (user == null) return BadRequest("Email đã tồn tại!");
+            var user = await _authService.RegisterAsync(model);
+            if (user == null) return BadRequest(new { message = "Email đã tồn tại!" });
             return Ok(new { message = "Đăng ký thành công" });
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginDto model)
+        public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            // Logic: Kiểm tra Password -> Gọi JwtHelper.GenerateToken()
-            // Tạm thời trả về token giả để bạn test luồng Mobile
-            return Ok(new { token = "fake-jwt-token", email = model.Email });
+            var user = await _authService.LoginAsync(model);
+            if (user == null) return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu" });
+
+            return Ok(new
+            {
+                token = "fake-jwt-token-123",
+                username = user.FullName,
+                email = user.Email
+            });
         }
     }
 }

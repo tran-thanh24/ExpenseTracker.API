@@ -135,3 +135,4 @@
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.pdb
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.genruntimeconfig.cache
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ref/ExpenseTracker.API.dll
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.sourcelink.json
