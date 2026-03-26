@@ -136,3 +136,4 @@
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.genruntimeconfig.cache
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ref/ExpenseTracker.API.dll
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.sourcelink.json
+/Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
