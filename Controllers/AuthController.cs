@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Thêm cái này để dùng .Where, .Select
-using ExpenseTracker.API.Data; // Thêm cái này để dùng AppDbContext
+using Microsoft.EntityFrameworkCore;
+using ExpenseTracker.API.Data;
 using ExpenseTracker.API.DTOs.Auth;
 using ExpenseTracker.API.Services;
 using Microsoft.AspNetCore.Authorization;

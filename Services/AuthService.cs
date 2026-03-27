@@ -2,10 +2,10 @@ using ExpenseTracker.API.Data;
 using ExpenseTracker.API.DTOs.Auth;
 using ExpenseTracker.API.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens; // Thêm dòng này
-using System.IdentityModel.Tokens.Jwt; // Thêm dòng này
-using System.Security.Claims; // Thêm dòng này
-using System.Text; // Thêm dòng này
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ExpenseTracker.API.Services
 {
@@ -29,7 +29,7 @@ namespace ExpenseTracker.API.Services
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                PasswordHash = dto.Password // Lưu ý: Sau này nên dùng BCrypt để Hash mật khẩu
+                PasswordHash = dto.Password
             };
 
             _context.Users.Add(user);
@@ -51,7 +51,6 @@ namespace ExpenseTracker.API.Services
         private string GenerateJwtToken(Users user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            // Key này PHẢI trùng với key trong Program.cs
             var key = Encoding.UTF8.GetBytes("Chuoi_Key_Bi_Mat_Cua_Thanh_2026_Sieu_Dai");
 
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -62,7 +61,7 @@ namespace ExpenseTracker.API.Services
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Name, user.FullName)
                 }),
-                Expires = DateTime.UtcNow.AddDays(7), // Token hết hạn sau 7 ngày
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
