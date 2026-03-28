@@ -5,11 +5,23 @@
 namespace ExpenseTracker.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddExpenseTable : Migration
+    public partial class InitialFixWallet : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Wallets_Users_UsersId",
+                table: "Wallets");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Wallets_UsersId",
+                table: "Wallets");
+
+            migrationBuilder.DropColumn(
+                name: "UsersId",
+                table: "Wallets");
+
             migrationBuilder.DropColumn(
                 name: "WalletId",
                 table: "Expenses");
@@ -50,11 +62,31 @@ namespace ExpenseTracker.API.Migrations
                 newName: "Note");
 
             migrationBuilder.AddColumn<int>(
+                name: "UsersId",
+                table: "Wallets",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
+            migrationBuilder.AddColumn<int>(
                 name: "WalletId",
                 table: "Expenses",
                 type: "int",
                 nullable: false,
                 defaultValue: 0);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wallets_UsersId",
+                table: "Wallets",
+                column: "UsersId");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Wallets_Users_UsersId",
+                table: "Wallets",
+                column: "UsersId",
+                principalTable: "Users",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

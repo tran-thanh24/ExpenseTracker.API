@@ -15,5 +15,7 @@ namespace ExpenseTracker.API.Models
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public Users? User { get; set; }
+
+        public int WalletId { get; set; }
     }
 }

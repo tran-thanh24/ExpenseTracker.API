@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpenseTracker.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260326080831_AddExpenseTable")]
-    partial class AddExpenseTable
+    [Migration("20260327172056_InitialFixWallet")]
+    partial class InitialFixWallet
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -103,12 +103,7 @@ namespace ExpenseTracker.API.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UsersId");
 
                     b.ToTable("Wallets");
                 });
@@ -122,17 +117,6 @@ namespace ExpenseTracker.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ExpenseTracker.API.Models.Wallet", b =>
-                {
-                    b.HasOne("ExpenseTracker.API.Models.Users", "Users")
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

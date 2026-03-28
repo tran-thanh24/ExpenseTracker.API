@@ -44,7 +44,6 @@ namespace ExpenseTracker.API.Services
 
             if (user == null) return null;
 
-            // TẠO TOKEN THẬT TẠI ĐÂY
             return GenerateJwtToken(user);
         }
 

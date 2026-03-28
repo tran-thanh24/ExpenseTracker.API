@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ExpenseTracker.API.Models
 {
     public class Wallet
@@ -6,6 +8,5 @@ namespace ExpenseTracker.API.Models
         public string Name { get; set; } = string.Empty;
         public decimal Balance { get; set; }
         public int UserId { get; set; }
-        public Users Users { get; set; } = null!;
     }
 }
