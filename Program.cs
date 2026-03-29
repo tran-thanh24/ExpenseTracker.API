@@ -4,7 +4,7 @@ using ExpenseTracker.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.Security.Claims;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,13 +17,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<ExpenseService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var secretKey = "Chuoi_Key_Bi_Mat_Cua_Thanh_2026_Sieu_Dai";
+var secretKey = builder.Configuration["Jwt:SecretKey"]
+    ?? throw new InvalidOperationException("Jwt:SecretKey is not configured.");
+if (secretKey.Length < 32)
+    throw new InvalidOperationException("Jwt:SecretKey must be at least 32 characters.");
 var key = Encoding.UTF8.GetBytes(secretKey);
 
 builder.Services.AddAuthentication(options =>

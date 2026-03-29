@@ -29,7 +29,7 @@ namespace ExpenseTracker.API.Services
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
-                PasswordHash = dto.Password
+                PasswordHash = PasswordHasherHelper.HashPassword(dto.Password)
             };
 
             _context.Users.Add(user);
@@ -39,19 +39,29 @@ namespace ExpenseTracker.API.Services
 
         public async Task<string?> LoginAsync(LoginDto dto)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.PasswordHash == dto.Password);
-
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (user == null) return null;
 
-            return GenerateJwtToken(user);
+            if (PasswordHasherHelper.VerifyPassword(dto.Password, user.PasswordHash))
+                return GenerateJwtToken(user);
+
+            if (user.PasswordHash == dto.Password)
+            {
+                user.PasswordHash = PasswordHasherHelper.HashPassword(dto.Password);
+                await _context.SaveChangesAsync();
+                return GenerateJwtToken(user);
+            }
+
+            return null;
         }
 
         private string GenerateJwtToken(Users user)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("Chuoi_Key_Bi_Mat_Cua_Thanh_2026_Sieu_Dai");
+            var secretKey = _configuration["Jwt:SecretKey"]
+                ?? throw new InvalidOperationException("Jwt:SecretKey is not configured.");
+            var key = Encoding.UTF8.GetBytes(secretKey);
 
+            var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]

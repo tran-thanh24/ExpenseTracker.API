@@ -1,10 +1,3 @@
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.csproj.AssemblyReference.cache
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.GeneratedMSBuildEditorConfig.editorconfig
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.AssemblyInfoInputs.cache
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.AssemblyInfo.cs
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.csproj.CoreCompileInputs.cache
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.MvcApplicationPartsAssemblyInfo.cs
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.MvcApplicationPartsAssemblyInfo.cache
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/appsettings.Development.json
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/appsettings.json
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/ExpenseTracker.API
@@ -15,6 +8,7 @@
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Azure.Core.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Azure.Identity.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Humanizer.dll
+/Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.AspNetCore.OpenApi.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.Bcl.AsyncInterfaces.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.CodeAnalysis.dll
@@ -121,6 +115,14 @@
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Runtime.Caching.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 /Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.csproj.AssemblyReference.cache
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.GeneratedMSBuildEditorConfig.editorconfig
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.AssemblyInfoInputs.cache
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.AssemblyInfo.cs
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.csproj.CoreCompileInputs.cache
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.MvcApplicationPartsAssemblyInfo.cs
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.MvcApplicationPartsAssemblyInfo.cache
+/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.sourcelink.json
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/staticwebassets.build.json
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/staticwebassets.development.json
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/staticwebassets/msbuild.ExpenseTracker.API.Microsoft.AspNetCore.StaticWebAssets.props
@@ -135,5 +137,3 @@
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.pdb
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.genruntimeconfig.cache
 /Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ref/ExpenseTracker.API.dll
-/Users/trancongthanh/ExpenseTracker.API/obj/Debug/net8.0/ExpenseTracker.API.sourcelink.json
-/Users/trancongthanh/ExpenseTracker.API/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll

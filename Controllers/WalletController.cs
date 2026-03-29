@@ -22,7 +22,9 @@ namespace ExpenseTracker.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = int.Parse(userIdStr);
             var wallets = await _context.Wallets.Where(w => w.UserId == userId).ToListAsync();
             return Ok(wallets);
         }

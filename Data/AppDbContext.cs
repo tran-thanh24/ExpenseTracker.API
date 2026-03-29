@@ -19,6 +19,10 @@ namespace ExpenseTracker.API.Data
                 .Property(e => e.Amount)
                 .HasColumnType("decimal(18,2)");
 
+            modelBuilder.Entity<Expense>()
+                .Property(e => e.Kind)
+                .HasConversion<int>();
+
             modelBuilder.Entity<Wallet>()
                 .Property(w => w.Balance)
                 .HasColumnType("decimal(18,2)");
