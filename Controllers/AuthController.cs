@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ExpenseTracker.API.Data;
 using ExpenseTracker.API.DTOs.Auth;
 using ExpenseTracker.API.Services;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 
 namespace ExpenseTracker.API.Controllers
 {
@@ -13,12 +10,10 @@ namespace ExpenseTracker.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AuthService _authService;
-        private readonly AppDbContext _context;
 
-        public AuthController(AuthService authService, AppDbContext context)
+        public AuthController(AuthService authService)
         {
             _authService = authService;
-            _context = context;
         }
 
         [HttpPost("register")]
@@ -44,22 +39,12 @@ namespace ExpenseTracker.API.Controllers
             });
         }
 
-        [HttpGet("profile")]
         [Authorize]
-        public async Task<IActionResult> GetProfile()
+        [HttpGet("all-users")]
+        public async Task<IActionResult> GetAllUsers()
         {
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (string.IsNullOrEmpty(email)) return Unauthorized();
-
-            var user = await _context.Users
-                .Where(u => u.Email == email)
-                .Select(u => new { u.FullName, u.Email })
-                .FirstOrDefaultAsync();
-
-            if (user == null) return NotFound();
-
-            return Ok(user);
+            var users = await _authService.GetAllUsersAsync();
+            return Ok(users);
         }
     }
 }

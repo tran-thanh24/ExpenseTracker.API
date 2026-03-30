@@ -42,5 +42,28 @@ namespace ExpenseTracker.API.Controllers
             await _context.SaveChangesAsync();
             return Ok(wallet);
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
+            var userId = int.Parse(userIdStr);
+
+            var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId);
+            if (wallet == null) return NotFound("Không tìm thấy ví.");
+
+            var expensesInWallet = await _context.Expenses
+                .Where(e => e.WalletId == id && e.UserId == userId)
+                .ToListAsync();
+
+            if (expensesInWallet.Count > 0)
+                _context.Expenses.RemoveRange(expensesInWallet);
+
+            _context.Wallets.Remove(wallet);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Xóa ví thành công." });
+        }
     }
 }

@@ -1,9 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using ExpenseTracker.API.Data;
 using ExpenseTracker.API.Models;
+using ExpenseTracker.API.DTOs;
 using ExpenseTracker.API.DTOs.Statistics;
 
 namespace ExpenseTracker.API.Controllers
@@ -27,29 +31,31 @@ namespace ExpenseTracker.API.Controllers
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             var userId = int.Parse(userIdStr);
 
-            DateTime now = DateTime.Today;
+            DateTime baseDate = customDate.HasValue ? customDate.Value.ToLocalTime() : DateTime.Today;
             DateTime startDate;
-
-            DateTime endDate = now.AddDays(1);
+            DateTime endDate;
 
             switch (type.ToLower())
             {
                 case "day":
-                    startDate = now.Date;
+                    startDate = baseDate.Date;
+                    endDate = startDate.AddDays(1);
                     break;
                 case "week":
-                    startDate = now.Date.AddDays(-7);
+                    endDate = baseDate.Date.AddDays(1);
+                    startDate = endDate.AddDays(-7);
                     break;
                 case "month":
-                    startDate = new DateTime(now.Year, now.Month, 1);
+                    startDate = new DateTime(baseDate.Year, baseDate.Month, 1);
+                    endDate = startDate.AddMonths(1);
                     break;
                 case "year":
-                    startDate = new DateTime(now.Year, 1, 1);
+                    startDate = new DateTime(baseDate.Year, 1, 1);
+                    endDate = startDate.AddYears(1);
                     break;
                 case "custom":
                     if (customDate == null) return BadRequest("Thiếu ngày tùy chọn.");
-                    DateTime localCustomDate = customDate.Value.ToLocalTime();
-                    startDate = localCustomDate.Date;
+                    startDate = baseDate.Date;
                     endDate = startDate.AddDays(1);
                     break;
                 default:
@@ -66,7 +72,7 @@ namespace ExpenseTracker.API.Controllers
                 TotalExpense = data.Where(e => e.Kind == TransactionKind.Expense).Sum(e => e.Amount),
 
                 CategoryData = data.Where(e => e.Kind == TransactionKind.Expense)
-                    .GroupBy(e => !string.IsNullOrEmpty(e.Category) ? e.Category : (!string.IsNullOrEmpty(e.Title) ? e.Title : "Khác"))
+                    .GroupBy(e => !string.IsNullOrEmpty(e.Category) ? e.Category : (!string.IsNullOrEmpty(e.Title) ? e.Title : "Chi tiêu khác"))
                     .Select(g => new CategoryStat
                     {
                         Name = g.Key,
@@ -76,7 +82,7 @@ namespace ExpenseTracker.API.Controllers
                     .ToList(),
 
                 IncomeCategoryData = data.Where(e => e.Kind == TransactionKind.Income)
-                    .GroupBy(e => !string.IsNullOrEmpty(e.Category) ? e.Category : (!string.IsNullOrEmpty(e.Title) ? e.Title : "Khác"))
+                    .GroupBy(e => !string.IsNullOrEmpty(e.Category) ? e.Category : (!string.IsNullOrEmpty(e.Title) ? e.Title : "Thu nhập khác"))
                     .Select(g => new CategoryStat
                     {
                         Name = g.Key,
@@ -103,20 +109,33 @@ namespace ExpenseTracker.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Expense expense)
+        public async Task<IActionResult> Create([FromBody] ExpenseUpsertDto request)
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             int userId = int.Parse(userIdStr);
 
-            if (expense.Amount <= 0)
+            if (request.Amount <= 0)
                 return BadRequest("Số tiền phải lớn hơn 0.");
+            if (!request.Kind.HasValue)
+                return BadRequest("Thiếu loại giao dịch (kind). Vui lòng gửi Expense hoặc Income.");
 
-            expense.UserId = userId;
-            if (expense.Date == default) expense.Date = DateTime.Now;
+            var expense = new Expense
+            {
+                Title = request.Title,
+                Amount = Math.Abs(request.Amount),
+                Category = request.Category,
+                Date = request.Date == default ? DateTime.Now : request.Date,
+                WalletId = request.WalletId,
+                Kind = request.Kind.Value,
+                UserId = userId
+            };
 
             var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == expense.WalletId && w.UserId == userId);
             if (wallet == null) return BadRequest("Ví không hợp lệ.");
+
+            if (expense.Kind == TransactionKind.Expense && wallet.Balance < expense.Amount)
+                return BadRequest(new { message = "Vượt quá số dư ví." });
 
             wallet.Balance += expense.Kind.ToWalletDelta(expense.Amount);
 
@@ -132,44 +151,57 @@ namespace ExpenseTracker.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateExpense(int id, [FromBody] Expense expense)
+        public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseUpsertDto request)
         {
             var userIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdStr)) return Unauthorized();
             var userId = int.Parse(userIdStr);
 
-            if (expense.Amount <= 0)
+            if (request.Amount <= 0)
                 return BadRequest("Số tiền phải lớn hơn 0.");
+            if (!request.Kind.HasValue)
+                return BadRequest("Thiếu loại giao dịch (kind). Vui lòng gửi Expense hoặc Income.");
 
             var dbExpense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
 
             if (dbExpense == null) return NotFound("Không tìm thấy giao dịch");
 
-            var oldDelta = dbExpense.Kind.ToWalletDelta(dbExpense.Amount);
-            var newDelta = expense.Kind.ToWalletDelta(expense.Amount);
+            var normalizedAmount = Math.Abs(request.Amount);
+            var newKind = request.Kind.Value;
 
-            if (dbExpense.WalletId == expense.WalletId)
+            var oldDelta = dbExpense.Kind.ToWalletDelta(dbExpense.Amount);
+            var newDelta = newKind.ToWalletDelta(normalizedAmount);
+
+            if (dbExpense.WalletId == request.WalletId)
             {
                 var wallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == dbExpense.WalletId && w.UserId == userId);
                 if (wallet == null) return BadRequest("Ví không hợp lệ.");
-                wallet.Balance = wallet.Balance - oldDelta + newDelta;
+                var projectedBalance = wallet.Balance - oldDelta + newDelta;
+                if (projectedBalance < 0)
+                    return BadRequest(new { message = "Vượt quá số dư ví." });
+                wallet.Balance = projectedBalance;
             }
             else
             {
                 var oldWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == dbExpense.WalletId && w.UserId == userId);
-                var newWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == expense.WalletId && w.UserId == userId);
+                var newWallet = await _context.Wallets.FirstOrDefaultAsync(w => w.Id == request.WalletId && w.UserId == userId);
                 if (oldWallet == null || newWallet == null) return BadRequest("Ví không hợp lệ.");
 
-                oldWallet.Balance -= oldDelta;
-                newWallet.Balance += newDelta;
+                var projectedOldWalletBalance = oldWallet.Balance - oldDelta;
+                var projectedNewWalletBalance = newWallet.Balance + newDelta;
+                if (projectedOldWalletBalance < 0 || projectedNewWalletBalance < 0)
+                    return BadRequest(new { message = "Vượt quá số dư ví." });
+
+                oldWallet.Balance = projectedOldWalletBalance;
+                newWallet.Balance = projectedNewWalletBalance;
             }
 
-            dbExpense.Title = expense.Title;
-            dbExpense.Amount = expense.Amount;
-            dbExpense.Category = expense.Category;
-            dbExpense.Date = expense.Date;
-            dbExpense.WalletId = expense.WalletId;
-            dbExpense.Kind = expense.Kind;
+            dbExpense.Title = request.Title;
+            dbExpense.Amount = normalizedAmount;
+            dbExpense.Category = request.Category;
+            dbExpense.Date = request.Date == default ? DateTime.Now : request.Date;
+            dbExpense.WalletId = request.WalletId;
+            dbExpense.Kind = newKind;
 
             await _context.SaveChangesAsync();
             return Ok(dbExpense);

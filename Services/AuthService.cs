@@ -29,12 +29,26 @@ namespace ExpenseTracker.API.Services
             {
                 FullName = dto.FullName,
                 Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
                 PasswordHash = PasswordHasherHelper.HashPassword(dto.Password)
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return user;
+        }
+
+        public async Task<List<UserResponseDto>> GetAllUsersAsync()
+        {
+            return await _context.Users
+                .Select(u => new UserResponseDto
+                {
+                    Id = u.Id,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber
+                })
+                .ToListAsync();
         }
 
         public async Task<string?> LoginAsync(LoginDto dto)
@@ -55,7 +69,7 @@ namespace ExpenseTracker.API.Services
             return null;
         }
 
-        private string GenerateJwtToken(Users user)
+        public string GenerateJwtToken(Users user)
         {
             var secretKey = _configuration["Jwt:SecretKey"]
                 ?? throw new InvalidOperationException("Jwt:SecretKey is not configured.");
@@ -68,7 +82,8 @@ namespace ExpenseTracker.API.Services
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.FullName)
+                    new Claim(ClaimTypes.Name, user.FullName),
+                    new Claim(ClaimTypes.MobilePhone, user.PhoneNumber ?? "")
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(
